@@ -1,0 +1,9 @@
+Replica set Question:
+
+Write a common use-case, where you will use a daemon set instead of replica set.
+
+Firstly, we need to know the basic difference between the Daemon set and replica set which is Replica set is concerned about the no. of pods only which should be running irrespective of the node if worker-node-A is down and it contains 3 pods then these 3 pods will be shifted to different worker node acc. to availibilty but the no. of pods will be maintained, whereas in Daemon set it has 1 pod in 1 woker node if the woker node dies the pods also dies so being specific some use cases would be:
+- The nodes can be in different type of hardwares  
+- In case of Logging solutions
+- In case of Monitoring solutions daemon set can be used
+- In case of storage it can be used 
