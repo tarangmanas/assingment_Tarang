@@ -1,0 +1,57 @@
+[ec2-user@ip-172-31-35-222 ~]$ sudo su
+[root@ip-172-31-35-222 ec2-user]# cd /root/
+[root@ip-172-31-35-222 ~]# git clone https://github.com/ashishrpandey/example-voting-app
+fatal: destination path 'example-voting-app' already exists and is not an empty directory.
+[root@ip-172-31-35-222 ~]# cd /root/example-voting-app/k8s-specifications
+[root@ip-172-31-35-222 k8s-specifications]# kubectl apply -f .
+deployment.apps/db created
+service/db created
+deployment.apps/redis created
+service/redis created
+deployment.apps/result created
+service/result created
+deployment.apps/vote created
+service/vote created
+deployment.apps/worker created
+[root@ip-172-31-35-222 k8s-specifications]# kubectl get svc
+NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+db           ClusterIP   10.106.185.41   <none>        5432/TCP         7m3s
+kubernetes   ClusterIP   10.96.0.1       <none>        443/TCP          12h
+redis        ClusterIP   10.109.66.158   <none>        6379/TCP         7m2s
+result       NodePort    10.96.107.123   <none>        5001:31001/TCP   7m2s
+vote         NodePort    10.100.66.230   <none>        5000:31000/TCP   7m2s
+[root@ip-172-31-35-222 k8s-specifications]#
+
+
+Observation:
+
+On deleting the first voting Pod:
+New pod gets created 
+Voting & Result both were working
+
+
+On deleting the worker pod:
+New worker pod got created 
+Voting & Result were working fine
+Logs also gets deleted as there was no error handeling file sepearate coding done
+
+On deleting the db pod:
+New db pod got created 
+nce the db gets deleted 
+The worker pod tries to connect to the db.
+But because the db was deleted and took all its data also 
+So, container in pod restarted itself and tries to connect to db
+And get connected to it once the db comes up
+Voting page was still working
+Result page was not working it got stuck
+
+Common observations:
+We know that on deleting the pod the logs also gets deleted so we should have seperate  log file handeling not depending on the pod 
+In our case also, The Result starts updating but the old data are lost
+On deleting the pod its data gets deleted 
+The pod is stateless
+
+Solution to fix the problem:
+Result app was connected to db in socket connection or synchronous connection if this fails then it will not be able to fetch the data 
+So, Give restart to result pod and again result page will start working with new votes
+
